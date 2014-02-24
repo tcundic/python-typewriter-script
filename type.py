@@ -1,30 +1,18 @@
 #!/usr/bin/env python
 
-import os
-import os.path
+import subprocess
 import time
 import sys
+import os
+import os.path
 from Xlib.display import Display
-import subprocess
-import glob
 import random
-import sys
 import Tkinter as tk
-
-if os.name == 'posix':
-    import pyxhook as hooklib
-elif os.name == 'nt':
-    import pyHook as hooklib
-    import pythoncom
-else:
-    print "OS is not recognised as windows or linux."
-    exit()
+import pyxhook as hooklib
 
 class TypeWritter:
   
     def __init__(self):
-	#if os.name == 'posix':
-	#self.hashchecker = ControlKeyMonitor(self, self.ControlKeyHash)
 	
 	self.hm = hooklib.HookManager()
 	self.hm.HookKeyboard()
@@ -37,7 +25,7 @@ class TypeWritter:
 	self.SHFT = os.path.split(os.path.abspath(os.path.realpath(sys.argv[0])))[0] + '/shift.wav'
 	self.TABULATOR = os.path.split(os.path.abspath(os.path.realpath(sys.argv[0])))[0] + '/tab.wav'
 	
-	self.putanja = os.path.split(os.path.abspath(os.path.realpath(sys.argv[0])))[0] + "/sounds/"
+	self.path = os.path.split(os.path.abspath(os.path.realpath(sys.argv[0])))[0] + "/sounds/"
 	
 	self.ZERO, self.SHIFT, self.ALT, self.CTL, self.BACKSPACE, self.SPACEBAR, self.TAB, self.SHIFT2=[],[],[],[], [], [], [], []
 	self.ENTER = [0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -75,45 +63,39 @@ class TypeWritter:
 
 	self.ignorelist=[self.ZERO,self.ALT,self.CTL]
 	
-    def spawn_event_threads(self):
-	self.event_threads = {}
-	self.queues = {}
-	
     def start(self):
-	if os.name == 'nt':
-	    pythoncom.PumpMessages()
-	if os.name == 'posix':
-	    #self.hashchecker.start()
-	    self.hm.start()
+	self.hm.start()
 
     def OnKeyDownEvent(self, event):
-	#self.ControlKeyHash.update(event)
-	
+	self.mute = open(os.path.split(os.path.abspath(os.path.realpath(sys.argv[0])))[0] + "/mute.dat", "r").read()
 	self.keymap = self.disp.query_keymap()
 	if self.keymap not in self.ignorelist:
-	    self.x = random.choice(os.listdir(self.putanja))
-	    self.zvuk = os.path.join(self.putanja, self.x)
-	    self.KEYPRESSFILE = self.zvuk
-	    if self.keymap == self.ENTER:
+	    self.x = random.choice(os.listdir(self.path))
+	    self.wav = os.path.join(self.path, self.x)
+	    self.KEYPRESSFILE = self.wav
+	if self.keymap == self.ENTER:
 		self.filename = self.RETURNFILE
-	    elif self.keymap == self.BACKSPACE:
+	elif self.keymap == self.BACKSPACE:
 		self.filename = self.BACK
-	    elif self.keymap == self.SPACEBAR:
+	elif self.keymap == self.SPACEBAR:
 		self.filename = self.SPACE
-	    elif self.keymap == self.SHIFT or self.keymap == self.SHIFT2:
+	elif self.keymap == self.SHIFT or self.keymap == self.SHIFT2:
 		self.filename = self.SHFT
-	    elif self.keymap == self.TAB:
+	elif self.keymap == self.TAB:
 		self.filename = self.TABULATOR
-	    else:
-	      self.filename = self.KEYPRESSFILE
-	    subprocess.Popen(['aplay', self.filename], stderr=open('/dev/null', 'w'))
-	    #print self.keymap #uncomment this line to print keycode for each key
+	else:
+		self.filename = self.KEYPRESSFILE
+	if self.mute == "False":
+			subprocess.Popen(['aplay', self.filename], stderr=open('/dev/null', 'w'))
+
+	if self.mute == "Exit":
+		self.stop()
+	#uncomment this line to print keycode for each key
+	#print self.keymap 
 	    
     def stop(self):
-	if os.name == 'posix':
-	    self.hm.cancel()
-	    #self.hashchecker.cancel()
-	    sys.exit()
+	self.hm.cancel()
+	sys.exit()
 	
 if __name__== '__main__':
     tw = TypeWritter()
