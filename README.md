@@ -1,5 +1,2 @@
-This is python script for linux. It play typewriter sound for each keypress. 
-I didn't wrote this script all by myself, but I used some code from different python typewriter script
-and some code from python keylogger application.
-It use x library, pyhook and Tkinter.
-It has tray icon and in popup menu you can mute script, unmute it or close script.
+I made this script as mini project in my free time. It works on Linux and on each keypress it makes sound of old typewritter.
+Another feature I made is, this script display tray icon so user can mute, unmute or close it.
